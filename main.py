@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 
 
 def extract_feature_train(url, label):
-    # set 1 if length of url greater than 54
+    # set 1 if length of url greater than 54 // ayy lmao
     l_url = len(url)
     if l_url > 54:
         length_of_url = 1
