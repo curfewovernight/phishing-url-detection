@@ -1,6 +1,7 @@
 import re
 import numpy as np
 import pandas as pd
+import wx
 
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
@@ -8,6 +9,11 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
+
+import gui
+
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 def extract_feature_train(url, label):
@@ -384,7 +390,9 @@ def main():
     acc6 = cal_accuracy(Y1, y_pred6)
 
     # input url from user
-    g_url = input("\n\nEnter url: ").strip()
+    #g_url = input("\n\nEnter url: ").strip()
+
+    g_url = "lol"
 
     # RF
     def rfc_pred():
@@ -402,9 +410,8 @@ def main():
             print('Error: ', str(e))
             print("Check if http protocol is specified!")
 
-    rfc_pred()
 
-    # SVM
+    # DT
     def svm_pred():
         try:
             url2 = g_url
@@ -420,7 +427,9 @@ def main():
             print('Error: ', str(e))
             print("Check if http protocol specified!")
 
-    svm_pred()
+
+    # rfc_pred()
+    # svm_pred()
 
     # unified function
     def comm_pred(c_clf, c_name):
@@ -438,10 +447,126 @@ def main():
             print('Error: ', str(e))
             print("Check if http protocol specified!")
 
-    comm_pred(dct, "DT")
-    comm_pred(gnb, "Gaussian")
-    comm_pred(neigh, "k-nearest")
-    comm_pred(ada, "AdaBoost")
+    # comm_pred(dct, "DT")
+    # comm_pred(gnb, "Gaussian")
+    # comm_pred(neigh, "k-nearest")
+    # comm_pred(ada, "AdaBoost")
+
+
+    # random forest c
+    matrix = confusion_matrix(Y1, y_pred1)
+    class_names = [0, 1]
+    fig, ax = plt.subplots()
+    tick_marks = np.arange(len(class_names))
+    plt.xticks(tick_marks, class_names)
+    plt.yticks(tick_marks, class_names)
+    sns.heatmap(pd.DataFrame(matrix), annot=True, cmap="YlGnBu", fmt='g')
+    ax.xaxis.set_label_position("top")
+    plt.tight_layout()
+    plt.title('Confusion matrix', y=1.1)
+    # plt.ylabel('Actual label')
+    # plt.xlabel('Predicted label')
+    fig.canvas.set_window_title('RandomForest')
+    plt.show()
+
+    # SVM
+    matrix = confusion_matrix(Y1, y_pred2)
+    class_names = [0, 1]
+    fig, ax = plt.subplots()
+    tick_marks = np.arange(len(class_names))
+    plt.xticks(tick_marks, class_names)
+    plt.yticks(tick_marks, class_names)
+    sns.heatmap(pd.DataFrame(matrix), annot=True, cmap="YlGnBu", fmt='g')
+    ax.xaxis.set_label_position("top")
+    plt.tight_layout()
+    plt.title('Confusion matrix', y=1.1)
+    # plt.ylabel('Actual label')
+    # plt.xlabel('Predicted label')
+    fig.canvas.set_window_title('SVM')
+    plt.show()
+
+    # DT
+    matrix = confusion_matrix(Y1, y_pred3)
+    class_names = [0, 1]
+    fig, ax = plt.subplots()
+    tick_marks = np.arange(len(class_names))
+    plt.xticks(tick_marks, class_names)
+    plt.yticks(tick_marks, class_names)
+    sns.heatmap(pd.DataFrame(matrix), annot=True, cmap="YlGnBu", fmt='g')
+    ax.xaxis.set_label_position("top")
+    plt.tight_layout()
+    plt.title('Confusion matrix', y=1.1)
+    # plt.ylabel('Actual label')
+    # plt.xlabel('Predicted label')
+    fig.canvas.set_window_title('Decision tree')
+    plt.show()
+
+    # Adaboost
+    matrix = confusion_matrix(Y1, y_pred6)
+    class_names = [0, 1]
+    fig, ax = plt.subplots()
+    tick_marks = np.arange(len(class_names))
+    plt.xticks(tick_marks, class_names)
+    plt.yticks(tick_marks, class_names)
+    sns.heatmap(pd.DataFrame(matrix), annot=True, cmap="YlGnBu", fmt='g')
+    ax.xaxis.set_label_position("top")
+    plt.tight_layout()
+    plt.title('Confusion matrix', y=1.1)
+    # plt.ylabel('Actual label')
+    # plt.xlabel('Predicted label')
+    fig.canvas.set_window_title('AdaBoost')
+    plt.show()
+
+    fClf = "AdaBoost"
+    sClf = "Decision Tree"
+    tClf = "Random Forest"
+    foClf = "SVM"
+
+    class PredictGUI(gui.frameMain):
+        def __init__(self, parent):
+            gui.frameMain.__init__(self, parent)
+            self.fstClass.SetLabel(fClf)
+            self.SecClass.SetLabel(sClf)
+            self.ThrdClass.SetLabel(tClf)
+            self.FthClass.SetLabel(foClf)
+
+        def OnPredict( self, event ):
+            try:
+                urlNT = self.m_textCtrl21.GetValue()
+                url = urlNT.strip()
+                e = np.array([extract_feature_usertest(url)])
+                userpredict = ada.predict(e.reshape(1, -1))
+                if(userpredict[0] == 'no'):
+                    self._1stResult.SetValue(str('Legitimate'))
+                else:
+                    self._1stResult.SetValue(str('Phishing'))
+
+                userpredict = dct.predict(e.reshape(1, -1))
+                if (userpredict[0] == 'no'):
+                    self._2ndResult.SetValue(str('Legitimate'))
+                else:
+                    self._2ndResult.SetValue(str('Phishing'))
+
+                userpredict = clf.predict(e.reshape(1, -1))
+                if (userpredict[0] == 'no'):
+                    self._3rdResult.SetValue(str('Legitimate'))
+                else:
+                    self._3rdResult.SetValue(str('Phishing'))
+
+                userpredict = rfc.predict(e.reshape(1, -1))
+                if (userpredict[0] == 'no'):
+                    self._4thResult.SetValue(str('Legitimate'))
+                else:
+                    self._4thResult.SetValue(str('Phishing'))
+
+            except Exception as e:
+                print('Error: ', str(e))
+                print("Check if http protocol specified!")
+
+    app = wx.App(False)
+    frame = PredictGUI(None)
+    frame.Show(True)
+    app.MainLoop()
 
 
 if __name__ == "__main__":
